@@ -1,0 +1,63 @@
+{
+  "name": "project local mappings",
+  "version": "1.0.0",
+  "description": "Current project path and file mapping configuration",
+  "author": "Local",
+  "builtinMappingsEnabled": true,
+  "language": "en",
+  "mappings": {
+    "files": {
+      "src/features/base/admin/list.js": "Админ-поиск пользователей",
+      "src/features/base/admin/msg.js": "Админ-рассылка сообщений",
+      "src/features/base/docs/help/help.js": "Отправка справки /help",
+      "src/features/base/docs/links/docs.js": "Выдача ссылок /docs",
+      "src/features/base/docs/links/oper.js": "Выдача ссылок /oper",
+      "src/features/sovet_quality-council/index.js": "Регистрация команд СК",
+      "src/features/sovet_quality-council/cron_sk_comments.js": "Cron уведомлений СК",
+      "src/features/status/status.js": "Команда статус экземпляра бота",
+      "src/features/sovet_quality-council/sovet_roles.js": "Проверка роли мастера",
+      "src/features/sovet_quality-council/sovet_command.js": "Обработка команды /sovet"
+    },
+    "packages": {},
+    "fileMatch": {
+      "bot.js": "Точка входа бота (bootstrap, composition root)",
+      "text-session.js": "Текстовый роутер (маршрутизация по session)",
+      "api.js": "API клиент (взаимодействие с сервером)",
+      "cron.js": "Регистрация cron-задач",
+      "run.js": "Запуск и конфигурация процесса",
+      "comment.js": "Добавление комментария к задаче СК",
+      "notify.js": "Уведомления по задачам СК",
+      "sovet_helpers.js": "Вспомогательные утилиты СК",
+      "sovet_master.js": "Отчёты и уведомления для мастеров",
+      "birth.js": "Уведомления о днях рождения",
+      "payments.js": "Информация о зарплате и выплатах",
+      "pohvala.js": "Ежемесячная похвала сотрудников",
+      "reg.js": "Регистрация пользователя",
+      "checkingGroup.js": "Проверка групп (check-процесс)"
+    },
+    "packageMatch": {
+      "src/api": "Слой API (доступ к серверу)",
+      "src/app": "Инициализация и конфигурация приложения",
+      "src/app/commands": "Регистрация Telegram-команд",
+      "src/app/cron": "Планировщики задач",
+      "src/features": "Бизнес-фичи бота",
+      "src/features/metrics": "Метрики и отчёты",
+      "src/features/sovet_quality-council": "Совет по качеству",
+      "src/processes": "Бизнес-процессы (flow/use-cases)",
+      "src/shared": "Общие утилиты и инфраструктура"
+    },
+    "filesTextColor": {
+      "bot.js": "#F8BBD0",
+      "src/features/status/status.js": "#E93225"
+    },
+    "packagesTextColor": {
+      "src/app": "#B39DDB",
+      "src/processes": "#90CAF9",
+      "src/pages": "#80DEEA",
+      "src/widgets": "#A5D6A7",
+      "src/features": "#FFF59D",
+      "src/entities": "#FFCC80",
+      "src/shared": "#EF9A9A"
+    }
+  }
+}
