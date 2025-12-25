@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
+    "module": "ESNext",
+    "target": "ES2022",
+    "allowJs": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "checkJs": false,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
