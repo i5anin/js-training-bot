@@ -1,7 +1,17 @@
+/**
+ * Responsibility:
+ * Обрабатывает текстовые сообщения пользователя в рамках сценария логирования тренировки:
+ * управляет состоянием диалога (training flow), валидирует ввод, формирует доменную сущность
+ * TrainingEntry и сохраняет её в хранилище через jsonDb.
+ *
+ * Модуль не содержит бизнес-правил домена (они инкапсулированы в TrainingEntry/Validators),
+ * не определяет структуру клавиатур (она вынесена в отдельные модули) и не управляет
+ * инфраструктурой хранения данных (использует jsonDb как абстракцию).
+ */
 import { TrainingFlowStep, TrainingFlowState } from "./training-log.flow.js";
 import { Validators } from "./training-log.validators.js";
 import { MuscleGroupsKeyboard, CancelKeyboard } from "./training-log.keyboard.js";
-import { TrainingEntry } from "../../domain/training/training.entity.js";
+import { TrainingEntry } from '@/domain/training/training.entity.js';
 
 export class TrainingLogHandlers {
     constructor({ groupsDbPath, logDbPath, jsonDb }) {
