@@ -1,29 +1,29 @@
 /**
  * Responsibility:
- * Определяет неизменяемые идентификаторы шагов тренировочного флоу
- * и предоставляет фабрику для создания начального (пустого) состояния флоу.
- *
- * Модуль не содержит UI-логики, правил переходов, валидации или побочных эффектов —
- * только константы шагов и инициализацию состояния.
+ * Определяет шаги тренировочного флоу и фабрику состояния.
+ * Никаких импортов, никаких побочных эффектов.
  */
 
-
 export const TrainingFlowStep = Object.freeze({
-    MuscleGroup: "muscleGroup",
-    WorkoutName: "workoutName",
-    Weight: "weight",
-    Reps: "reps",
-    Done: "done",
-});
+  MuscleGroup: 'muscleGroup',
+  WorkoutName: 'workoutName',
+  Weight: 'weight',
+  Reps: 'reps',
+  Confirm: 'confirm',
+  Done: 'done'
+})
 
 export const TrainingFlowState = {
-    createEmpty() {
-        return {
-            step: TrainingFlowStep.MuscleGroup,
-            muscleGroup: "",
-            workoutName: "",
-            weight: 0,
-            reps: 0,
-        };
-    },
-};
+  createEmpty() {
+    return {
+      step: TrainingFlowStep.MuscleGroup,
+      muscleGroup: '',
+      workoutName: '',
+      weight: 0,
+      reps: 0,
+      bar: 0,
+      side: 0,
+      note: ''
+    }
+  }
+}

@@ -6,7 +6,14 @@
  * Модуль не содержит логики валидации, управления состоянием диалога или бизнес-правил —
  * только построение UI-клавиатур на основе входных данных.
  */
-import { Keyboard } from "grammy";
+import { Keyboard } from 'grammy'
+
+export const ConfirmKeyboard = {
+  create() {
+    return new Keyboard().text('Да').text('Нет').row().text('Отмена').resized()
+  }
+}
+
 
 export const MuscleGroupsKeyboard = {
     fromGroups(groups) {
