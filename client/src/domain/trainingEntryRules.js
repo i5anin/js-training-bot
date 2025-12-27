@@ -36,4 +36,3 @@ export const TrainingEntryRules = {
         return errors
     },
 }
-
