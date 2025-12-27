@@ -33,6 +33,10 @@ export const TrainingEntryRules = {
         if (!String(draft.muscleGroup).trim()) errors.push('Группа мышц обязательна')
         if (!String(draft.workoutName).trim()) errors.push('Упражнение обязательно')
 
+        if (!Number.isFinite(draft.reps) || !Number.isInteger(draft.reps) || draft.reps < 1) {
+            errors.push('Повторения должны быть целым числом >= 1')
+        }
+
         return errors
     },
 }
