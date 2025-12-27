@@ -5,6 +5,7 @@ import { TrainingEntryRules } from '@/domain/trainingEntryRules'
 import { TrainingEntryFactory } from '@/services/trainingEntryFactory'
 import TrainingFlowEditor from '@/components/TrainingFlowEditor.vue'
 import TrainingFlowTable from '@/components/TrainingFlowTable.vue'
+import TrainingFlowGroupedTable from "@/components/TrainingFlowGroupedTable.vue";
 
 
 const BASE_URL = 'http://localhost:3005/trainings'
@@ -54,12 +55,23 @@ const add = async () => {
   try {
     const entry = TrainingEntryFactory.create(draft)
     await postEntry(entry)
-    state.value = TrainingFlowState.createEmpty()
+
+    state.value = {
+      ...state.value,
+      reps: null,
+      note: '',
+      bar: 0,
+      side: 0,
+      weight: 0,
+      ui: state.value.ui ?? { showHelp: true },
+    }
+
     await refresh()
   } catch (e) {
     error.value = e.message
   }
 }
+
 
 const remove = async (id) => {
   try {
@@ -81,11 +93,12 @@ const remove = async (id) => {
         @update:state="state = $event"
         @add="add"
     />
-
+    <TrainingFlowGroupedTable :entries="entries" />
     <TrainingFlowTable
         :entries="entries"
         @remove="remove"
     />
+
   </main>
 </template>
 

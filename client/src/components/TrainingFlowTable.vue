@@ -1,8 +1,7 @@
 <script setup>
-const props = defineProps({
+defineProps({
   entries: {type: Array, required: true}
-})
-
+});
 const emit = defineEmits(['remove'])
 
 const remove = (id) => emit('remove', id)
@@ -14,6 +13,7 @@ const formatIso = (iso) => {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
   return d.toLocaleString('ru-RU', {
+    timeZone: 'Europe/Moscow',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -40,6 +40,7 @@ const calcTotal = (row) => {
       <table class="table">
         <thead>
         <tr>
+          <th class="num">№</th>
           <th>Дата</th>
           <th>Группа мышц</th>
           <th>Упражнение</th>
@@ -53,8 +54,10 @@ const calcTotal = (row) => {
         </thead>
 
         <tbody>
+
         <tr v-for="row in entries" :key="row.id">
-          <td class="mono">{{ formatIso(row.createdAtIso) }}</td>
+          <td class="num mono">{{ row.trainingNo ?? '-' }}</td>
+          <td class="mono">{{ formatIso(row.trainingAtIso) }}</td>
           <td>{{ row.muscleGroup || '-' }}</td>
           <td>{{ row.workoutName || '-' }}</td>
           <td class="num mono">{{ row.reps ?? 0 }}</td>
@@ -71,7 +74,7 @@ const calcTotal = (row) => {
         </tr>
 
         <tr v-if="entries.length === 0">
-          <td colspan="9" class="empty">Нет записей</td>
+          <td colspan="10" class="empty">Нет записей</td>
         </tr>
         </tbody>
       </table>

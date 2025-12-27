@@ -1,29 +1,31 @@
 <script setup>
-import {computed, ref, watch} from 'vue'
-import {TrainingEntryRules} from '@/domain/trainingEntryRules'
+import { computed, ref, watch } from 'vue'
+import { TrainingEntryRules } from '@/domain/trainingEntryRules'
 
 const props = defineProps({
-  state: {type: Object, required: true},
-  entries: {type: Array, required: true}
+  state: { type: Object, required: true },
+  entries: { type: Array, required: true },
 })
 
 const emit = defineEmits(['update:state', 'add'])
 
-const errors = ref([])
-
-const update = (key, value) => {
-  emit('update:state', {...props.state, [key]: value})
-}
-
-const updateUi = (key, value) => {
-  emit('update:state', {...props.state, ui: {...props.state.ui, [key]: value}})
-}
-
 const BAR_OPTIONS = Object.freeze([10, 20])
 const SIDE_OPTIONS = Object.freeze([1.25, 2.5, 5, 10, 15, 20])
 
+const errors = ref([])
 const selectedBar = ref([])
 const selectedSide = ref([])
+
+const update = (key, value) => {
+  emit('update:state', { ...props.state, [key]: value })
+}
+
+const updateUi = (key, value) => {
+  emit('update:state', {
+    ...props.state,
+    ui: { ...(props.state.ui ?? {}), [key]: value },
+  })
+}
 
 const sum = (arr) => arr.reduce((acc, v) => acc + Number(v), 0)
 
@@ -38,22 +40,10 @@ watch(
         ...props.state,
         bar: barWeight.value,
         side: sideWeight.value,
-        weight: totalWeight.value
+        weight: totalWeight.value,
       })
     },
-    {immediate: true}
-)
-
-watch(
-    () => props.state,
-    (s) => {
-      if (!s?.bar && !s?.side && !s?.weight) {
-        selectedBar.value = []
-        selectedSide.value = []
-        errors.value = []
-      }
-    },
-    {deep: true}
+    { immediate: true }
 )
 
 const draft = computed(() => TrainingEntryRules.fromState(props.state))
@@ -69,55 +59,126 @@ const add = () => {
 }
 
 const muscleGroupOptions = computed(() => {
-  const set = new Set(props.entries.map(x => (x.muscleGroup || '').trim()).filter(Boolean))
+  const set = new Set(
+      props.entries.map((x) => (x.muscleGroup || '').trim()).filter(Boolean)
+  )
   return Array.from(set).sort((a, b) => a.localeCompare(b, 'ru'))
 })
 
 const workoutNameOptions = computed(() => {
-  const set = new Set(props.entries.map(x => (x.workoutName || '').trim()).filter(Boolean))
+  const set = new Set(
+      props.entries.map((x) => (x.workoutName || '').trim()).filter(Boolean)
+  )
   return Array.from(set).sort((a, b) => a.localeCompare(b, 'ru'))
 })
 
 const nextTrainingNo = computed(() => {
-  const max = props.entries.reduce((m, x) => Math.max(m, Number(x.trainingNo || 0)), 0)
+  const max = props.entries.reduce(
+      (m, x) => Math.max(m, Number(x.trainingNo || 0)),
+      0
+  )
   return max + 1
 })
+
+const pad2 = (n) => String(n).padStart(2, '0')
+
+const formatOffset = (minutes) => {
+  const sign = minutes >= 0 ? '+' : '-'
+  const abs = Math.abs(minutes)
+  const hh = pad2(Math.floor(abs / 60))
+  const mm = pad2(abs % 60)
+  return `${sign}${hh}:${mm}`
+}
+
+const toMskIsoNow = () => {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = pad2(d.getMonth() + 1)
+  const dd = pad2(d.getDate())
+  const hh = pad2(d.getHours())
+  const mi = pad2(d.getMinutes())
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:00${formatOffset(-d.getTimezoneOffset())}`
+}
+
+const toDateTimeInput = (iso) => {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const yyyy = d.getFullYear()
+  const mm = pad2(d.getMonth() + 1)
+  const dd = pad2(d.getDate())
+  const hh = pad2(d.getHours())
+  const mi = pad2(d.getMinutes())
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`
+}
+
+const fromDateTimeInput = (value) => {
+  if (!value) return null
+  const [datePart, timePart] = value.split('T')
+  if (!datePart || !timePart) return null
+
+  const [y, m, d] = datePart.split('-').map(Number)
+  const [hh, mi] = timePart.split(':').map(Number)
+
+  if (
+      !Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d) ||
+      !Number.isFinite(hh) || !Number.isFinite(mi)
+  ) {
+    return null
+  }
+
+  const yyyy = String(y).padStart(4, '0')
+  const mm = pad2(m)
+  const dd = pad2(d)
+  const H = pad2(hh)
+  const M = pad2(mi)
+
+  return `${yyyy}-${mm}-${dd}T${H}:${M}:00+03:00`
+}
 
 watch(
     () => props.entries.length,
     () => {
       if (!props.state.trainingNo) update('trainingNo', nextTrainingNo.value)
-      if (!props.state.trainingDateIso) update('trainingDateIso', new Date().toISOString())
+      if (!props.state.trainingDateIso) update('trainingDateIso', toMskIsoNow())
     },
-    {immediate: true}
+    { immediate: true }
 )
 
-const toDateInput = (iso) => {
-  if (!iso) return ''
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd}`
-}
+watch(
+    () => props.state,
+    (s) => {
+      const isHardReset =
+          !s?.trainingNo &&
+          !String(s?.muscleGroup || '').trim() &&
+          !String(s?.workoutName || '').trim() &&
+          !s?.trainingDateIso &&
+          !s?.bar &&
+          !s?.side &&
+          !s?.weight
 
-const fromDateInput = (value) => {
-  if (!value) return null
-  const d = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(d.getTime())) return null
-  return d.toISOString()
-}
+      if (isHardReset) {
+        selectedBar.value = []
+        selectedSide.value = []
+        errors.value = []
+      }
+    },
+    { deep: true }
+)
 </script>
 
 <template>
   <section class="block">
-    <h2>Добавление тренировки</h2>
+    <header class="top">
+      <h2 class="title">Добавление тренировки</h2>
+      <button class="btn primary" type="button" @click="add">
+        Добавить
+      </button>
+    </header>
 
     <div class="grid">
-      <!-- Номер тренировки -->
       <label class="field">
-        <span>Номер тренировки</span>
+        <span>Номер</span>
         <input
             :value="state.trainingNo ?? nextTrainingNo"
             type="number"
@@ -127,19 +188,27 @@ const fromDateInput = (value) => {
         />
       </label>
 
-      <!-- Дата тренировки -->
       <label class="field">
-        <span>Дата тренировки</span>
+        <span>Дата и время (МСК)</span>
         <input
-            :value="toDateInput(state.trainingDateIso)"
-            type="date"
-            @input="update('trainingDateIso', fromDateInput($event.target.value))"
+            :value="toDateTimeInput(state.trainingDateIso)"
+            type="datetime-local"
+            step="60"
+            @input="update('trainingDateIso', fromDateTimeInput($event.target.value))"
         />
       </label>
 
-      <div class="field"></div>
+      <label class="field">
+        <span>Повторения</span>
+        <input
+            :value="state.reps"
+            type="number"
+            min="1"
+            step="1"
+            @input="update('reps', Number($event.target.value))"
+        />
+      </label>
 
-      <!-- Группа мышц с выбором из уже добавленных -->
       <label class="field">
         <span>Группа мышц</span>
         <input
@@ -149,11 +218,10 @@ const fromDateInput = (value) => {
             @input="update('muscleGroup', $event.target.value)"
         />
         <datalist id="muscle-groups">
-          <option v-for="m in muscleGroupOptions" :key="m" :value="m"/>
+          <option v-for="m in muscleGroupOptions" :key="m" :value="m" />
         </datalist>
       </label>
 
-      <!-- Упражнение с выбором из уже добавленных -->
       <label class="field">
         <span>Упражнение</span>
         <input
@@ -163,57 +231,11 @@ const fromDateInput = (value) => {
             @input="update('workoutName', $event.target.value)"
         />
         <datalist id="workouts">
-          <option v-for="w in workoutNameOptions" :key="w" :value="w"/>
+          <option v-for="w in workoutNameOptions" :key="w" :value="w" />
         </datalist>
       </label>
 
       <label class="field">
-        <span>Повторения</span>
-        <input
-            :value="state.reps"
-            type="number"
-            min="0"
-            step="1"
-            @input="update('reps', Number($event.target.value))"
-        />
-      </label>
-
-      <div class="field full">
-        <span class="title">Штанга</span>
-        <div class="checks">
-          <label v-for="w in BAR_OPTIONS" :key="w" class="check">
-            <input type="checkbox" :value="w" v-model="selectedBar"/>
-            <span>{{ w }} кг</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field full">
-        <span class="title">Диски на одну сторону</span>
-        <div class="checks">
-          <label v-for="w in SIDE_OPTIONS" :key="w" class="check">
-            <input type="checkbox" :value="w" v-model="selectedSide"/>
-            <span>{{ w }} кг</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field full summary">
-        <div class="row">
-          <span>Штанга:</span>
-          <span class="mono">{{ barWeight }} кг</span>
-        </div>
-        <div class="row">
-          <span>Одна сторона:</span>
-          <span class="mono">{{ sideWeight }} кг</span>
-        </div>
-        <div class="row total">
-          <span>Итого:</span>
-          <span class="mono">{{ totalWeight }} кг</span>
-        </div>
-      </div>
-
-      <label class="field full">
         <span>Заметка</span>
         <input
             :value="state.note"
@@ -222,101 +244,149 @@ const fromDateInput = (value) => {
         />
       </label>
 
+      <div class="field full">
+        <span class="legend">Штанга</span>
+        <div class="checks">
+          <label v-for="w in BAR_OPTIONS" :key="w" class="check">
+            <input type="checkbox" :value="w" v-model="selectedBar" />
+            <span>{{ w }} кг</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field full">
+        <span class="legend">Диски на одну сторону</span>
+        <div class="checks">
+          <label v-for="w in SIDE_OPTIONS" :key="w" class="check">
+            <input type="checkbox" :value="w" v-model="selectedSide" />
+            <span>{{ w }} кг</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field full summary">
+        <div class="row">
+          <span>Штанга</span>
+          <span class="mono">{{ barWeight }} кг</span>
+        </div>
+        <div class="row">
+          <span>Одна сторона</span>
+          <span class="mono">{{ sideWeight }} кг</span>
+        </div>
+        <div class="row total">
+          <span>Итого</span>
+          <span class="mono">{{ totalWeight }} кг</span>
+        </div>
+      </div>
+
       <label class="field full rowLine">
-        <span>Показывать подсказки</span>
+        <span>Подсказки</span>
         <input
             type="checkbox"
-            :checked="state.ui.showHelp"
+            :checked="state.ui?.showHelp ?? true"
             @change="updateUi('showHelp', $event.target.checked)"
         />
       </label>
     </div>
 
     <div v-if="errors.length" class="errors">
-      <div v-for="e in errors" :key="e" class="error">{{ e }}</div>
-    </div>
-
-    <div class="actions">
-      <button class="btn primary" type="button" @click="add">
-        Добавить в таблицу
-      </button>
+      <div v-for="e in errors" :key="e" class="error">
+        {{ e }}
+      </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-/* твой style без изменений */
 .block {
-  padding: 16px;
+  padding: 12px;
   border: 1px solid #2b2b2b;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #121212;
   display: grid;
-  gap: 16px;
+  gap: 12px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .grid {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .field span {
-  font-size: 12px;
+  font-size: 11px;
   color: #bdbdbd;
 }
 
-.field input[type="text"], .field input[type="number"], .field input[type="date"] {
-  padding: 10px 12px;
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="date"],
+.field input[type="datetime-local"] {
+  padding: 7px 10px;
   border: 1px solid #2b2b2b;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #0f0f0f;
   color: #f3f3f3;
+  font-size: 13px;
 }
 
 .field.full {
   grid-column: 1 / -1;
 }
 
-.title {
-  font-size: 12px;
+.legend {
+  font-size: 11px;
   color: #bdbdbd;
 }
 
 .checks {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 8px 10px;
   border: 1px solid #2b2b2b;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #0f0f0f;
 }
 
 .check {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: #e6e6e6;
+  font-size: 13px;
 }
 
 .check input {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .summary {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid #2b2b2b;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #0f0f0f;
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .row {
@@ -326,8 +396,8 @@ const fromDateInput = (value) => {
 }
 
 .total {
-  margin-top: 4px;
-  padding-top: 8px;
+  margin-top: 2px;
+  padding-top: 6px;
   border-top: 1px solid #2b2b2b;
 }
 
@@ -339,16 +409,16 @@ const fromDateInput = (value) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid #2b2b2b;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #0f0f0f;
 }
 
 .errors {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid #5a2b2b;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #2a1414;
   display: grid;
   gap: 6px;
@@ -356,21 +426,17 @@ const fromDateInput = (value) => {
 
 .error {
   color: #ffd1d1;
-  font-size: 13px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
+  font-size: 12px;
 }
 
 .btn {
   border: 1px solid #2b2b2b;
-  border-radius: 10px;
-  padding: 10px 14px;
+  border-radius: 8px;
+  padding: 8px 12px;
   background: #1b1b1b;
   color: #f3f3f3;
   cursor: pointer;
+  font-size: 13px;
 }
 
 .btn.primary {
