@@ -13,7 +13,7 @@ const formatIso = (iso) => {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
   return d.toLocaleString('ru-RU', {
-    timeZone: 'UTC',
+    timeZone: 'Europe/Moscow',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -57,7 +57,7 @@ const calcTotal = (row) => {
 
         <tr v-for="row in entries" :key="row.id">
           <td class="num mono">{{ row.trainingNo ?? '-' }}</td>
-          <td class="mono">{{ formatIso(row.createdAtIso) }}</td>
+          <td class="mono">{{ formatIso(row.trainingAtIso) }}</td>
           <td>{{ row.muscleGroup || '-' }}</td>
           <td>{{ row.workoutName || '-' }}</td>
           <td class="num mono">{{ row.reps ?? 0 }}</td>

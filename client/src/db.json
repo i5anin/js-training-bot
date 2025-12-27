@@ -103,6 +103,19 @@
       "bar": 20,
       "side": 21.25,
       "note": ""
+    },
+    {
+      "id": "756674eb-f040-4f7e-8927-87b2f2d77197",
+      "trainingAtIso": "2025-12-26T18:30:00+03:00",
+      "createdAtIso": "2025-12-27T16:53:16.987Z",
+      "trainingNo": 1000,
+      "muscleGroup": "Ноги",
+      "workoutName": "Сгибание ног лежа",
+      "weight": 30,
+      "reps": 15,
+      "bar": 0,
+      "side": 15,
+      "note": ""
     }
   ]
 }

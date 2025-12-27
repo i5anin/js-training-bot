@@ -3,9 +3,6 @@
  * Создание полноценной записи таблицы из draft.
  */
 
-import { IdGenerator } from './idGenerator'
-
-
 export const TrainingEntryFactory = {
     create(draft) {
         const nowIso = new Date().toISOString()

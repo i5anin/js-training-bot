@@ -10,7 +10,7 @@ const formatIso = (iso) => {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
   return d.toLocaleString('ru-RU', {
-    timeZone: 'UTC',
+    timeZone: 'Europe/Moscow',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -47,7 +47,7 @@ const toSetsText = (rows) =>
 
 const groupKeyOf = (row) => {
   const no = row.trainingNo ?? ''
-  const day = formatDateKey(row.createdAtIso)
+  const day = formatDateKey(row.trainingAtIso)
   const mg = String(row.muscleGroup || '').trim()
   const wn = String(row.workoutName || '').trim()
   return `${no}__${day}__${mg}__${wn}`
@@ -64,7 +64,7 @@ const grouped = computed(() => {
       map.set(key, {
         key,
         trainingNo: row.trainingNo ?? null,
-        createdAtIso: row.createdAtIso ?? null,
+        trainingAtIso: row.trainingAtIso ?? null,
         muscleGroup: row.muscleGroup ?? '',
         workoutName: row.workoutName ?? '',
         rows: [row],
@@ -80,7 +80,7 @@ const grouped = computed(() => {
         const notes = toUniqueNotes(g.rows)
         return {
           ...g,
-          dateText: formatIso(g.createdAtIso),
+          dateText: formatIso(g.trainingAtIso),
           notesText: notes.length ? notes.join(', ') : '-',
           setsText: toSetsText(g.rows),
           totalSets: g.rows.length,
@@ -91,8 +91,8 @@ const grouped = computed(() => {
         const nb = Number(b.trainingNo || 0)
         if (na !== nb) return nb - na
 
-        const da = new Date(a.createdAtIso || 0).getTime()
-        const db = new Date(b.createdAtIso || 0).getTime()
+        const da = new Date(a.trainingAtIso || 0).getTime()
+        const db = new Date(b.trainingAtIso || 0).getTime()
         return db - da
       })
 })
