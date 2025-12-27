@@ -4,27 +4,36 @@
  * и синхронная валидация.
  */
 
-export const TrainingEntryRules = Object.freeze({
+export const TrainingEntryRules = {
     fromState(state) {
         return {
-            muscleGroup: state.muscleGroup,
-            workoutName: state.workoutName,
-            weight: state.weight,
-            reps: state.reps,
-            bar: state.bar,
-            side: state.side,
-            note: state.note
+            trainingNo: Number(state.trainingNo || 0),
+            trainingDateIso: state.trainingDateIso || null,
+
+            muscleGroup: state.muscleGroup || '',
+            workoutName: state.workoutName || '',
+
+            reps: Number(state.reps || 0),
+            bar: Number(state.bar || 0),
+            side: Number(state.side || 0),
+            weight: Number(state.weight || 0),
+
+            note: state.note || '',
         }
     },
 
     validate(draft) {
         const errors = []
 
-        if (!draft.muscleGroup.trim()) errors.push('Muscle group обязателен')
-        if (!draft.workoutName.trim()) errors.push('Workout name обязателен')
-        if (!Number.isFinite(draft.weight) || draft.weight < 0) errors.push('Weight должен быть >= 0')
-        if (!Number.isInteger(draft.reps) || draft.reps < 0) errors.push('Reps должен быть целым >= 0')
+        if (!Number.isFinite(draft.trainingNo) || draft.trainingNo < 1) {
+            errors.push('Номер тренировки должен быть >= 1')
+        }
+
+        if (!draft.trainingDateIso) errors.push('Дата тренировки обязательна')
+        if (!String(draft.muscleGroup).trim()) errors.push('Группа мышц обязательна')
+        if (!String(draft.workoutName).trim()) errors.push('Упражнение обязательно')
 
         return errors
-    }
-})
+    },
+}
+
