@@ -1,0 +1,15 @@
+{
+  "trainings": [
+    {
+      "id": "e2f0ab5c-d729-48e2-ac1f-04b7c1c73915",
+      "createdAtIso": "2025-12-27T12:00:59.732Z",
+      "muscleGroup": "123",
+      "workoutName": "123",
+      "weight": 0,
+      "reps": 0,
+      "bar": 0,
+      "side": 0,
+      "note": ""
+    }
+  ]
+}

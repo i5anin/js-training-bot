@@ -23,7 +23,13 @@ export const TrainingFlowState = {
       reps: 0,
       bar: 0,
       side: 0,
-      note: ''
+      note: '',
+      ui: {
+        messageId: null,
+        showHelp: false
+      }
     }
   }
 }
+
+

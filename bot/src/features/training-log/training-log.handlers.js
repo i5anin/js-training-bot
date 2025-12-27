@@ -7,6 +7,7 @@ import {
 } from './training-log.keyboard.js'
 import { TrainingEntry } from '@/domain/training/training.entity.js'
 import { parseSignedNumber } from './modifier.parser.js'
+import { TrainingLogUi } from './training-log.ui.js'
 
 export class TrainingLogHandlers {
   constructor({ groupsDbPath, logDbPath, jsonDb }) {
@@ -17,18 +18,29 @@ export class TrainingLogHandlers {
 
   async start(ctx) {
     ctx.session.training = TrainingFlowState.createEmpty()
-    const groups = await this.#loadGroups()
+    const state = ctx.session.training
 
-    await ctx.reply('Введи название группы мышц (текстом):', {
-      reply_markup: MuscleGroupsKeyboard.fromGroups(groups)
-    })
+    state.ui.messageId = await TrainingLogUi.createFormMessage(ctx, state)
   }
 
+  async help(ctx) {
+    const state = ctx.session.training
+    if (!state) {
+      await ctx.reply('Нет активной записи. /train')
+      return
+    }
+
+    state.ui.showHelp = !state.ui.showHelp
+    await TrainingLogUi.updateFormMessage(ctx, state)
+  }
+
+
   async stop(ctx) {
+    const state = ctx.session.training
+    if (state) {
+      await TrainingLogUi.closeFormMessage(ctx, state, 'Операция остановлена.')
+    }
     delete ctx.session.training
-    await ctx.reply('Операция остановлена.', {
-      reply_markup: { remove_keyboard: true }
-    })
   }
 
   async done(ctx) {
@@ -56,6 +68,8 @@ export class TrainingLogHandlers {
   async bar(ctx) {
     await this.#applyModifier(ctx, 'bar')
   }
+
+
 
   async side(ctx) {
     await this.#applyModifier(ctx, 'side')
