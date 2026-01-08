@@ -1,7 +1,20 @@
 <script setup>
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog'
+
 defineProps({
-  entries: {type: Array, required: true}
-});
+  entries: { type: Array, required: true },
+})
+
 const emit = defineEmits(['remove'])
 
 const remove = (id) => emit('remove', id)
@@ -18,7 +31,7 @@ const formatIso = (iso) => {
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -54,7 +67,6 @@ const calcTotal = (row) => {
         </thead>
 
         <tbody>
-
         <tr v-for="row in entries" :key="row.id">
           <td class="num mono">{{ row.trainingNo ?? '-' }}</td>
           <td class="mono">{{ formatIso(row.trainingAtIso) }}</td>
@@ -67,9 +79,35 @@ const calcTotal = (row) => {
           <td class="note">{{ row.note || '-' }}</td>
 
           <td class="actions">
-            <button class="btn danger" type="button" @click="remove(row.id)">
-              Удалить
-            </button>
+            <AlertDialog>
+              <AlertDialogTrigger as-child>
+                <button class="btn danger" type="button">
+                  Удалить
+                </button>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Удалить запись?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Это действие необратимо. Запись будет удалена навсегда.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel type="button">
+                    Отмена
+                  </AlertDialogCancel>
+
+                  <AlertDialogAction
+                      type="button"
+                      @click="remove(row.id)"
+                  >
+                    Удалить
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </td>
         </tr>
 
@@ -86,127 +124,3 @@ const calcTotal = (row) => {
     </details>
   </section>
 </template>
-
-<style scoped>
-.block {
-  padding: 16px;
-  border: 1px solid #2b2b2b;
-  border-radius: 12px;
-  background: #121212;
-  display: grid;
-  gap: 16px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.badge {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  padding: 6px 10px;
-  border: 1px solid #2b2b2b;
-  border-radius: 999px;
-  color: #cfcfcf;
-}
-
-.tableWrap {
-  overflow: auto;
-  border: 1px solid #2b2b2b;
-  border-radius: 10px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1100px;
-}
-
-th, td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #2b2b2b;
-  text-align: left;
-  white-space: nowrap;
-}
-
-thead th {
-  position: sticky;
-  top: 0;
-  background: #161616;
-  z-index: 1;
-}
-
-.num {
-  text-align: right;
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  color: #d7d7d7;
-}
-
-.note {
-  max-width: 380px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.actions {
-  text-align: right;
-}
-
-.empty {
-  text-align: center;
-  color: #9a9a9a;
-  padding: 16px;
-}
-
-.btn {
-  border: 1px solid #2b2b2b;
-  border-radius: 10px;
-  padding: 8px 10px;
-  background: #1b1b1b;
-  color: #f3f3f3;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: #232323;
-}
-
-.btn.danger {
-  border-color: #5a2b2b;
-  background: #2a1414;
-}
-
-.btn.danger:hover {
-  background: #341818;
-}
-
-.jsonBlock {
-  border: 1px solid #2b2b2b;
-  border-radius: 10px;
-  background: #0f0f0f;
-  overflow: hidden;
-}
-
-.jsonTitle {
-  cursor: pointer;
-  padding: 10px 12px;
-  color: #cfcfcf;
-  border-bottom: 1px solid #2b2b2b;
-  user-select: none;
-}
-
-.json {
-  margin: 0;
-  padding: 12px;
-  color: #dcdcdc;
-  overflow: auto;
-}
-</style>

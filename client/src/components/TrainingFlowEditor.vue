@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { TrainingEntryRules } from '@/domain/trainingEntryRules'
+import { Switch } from '@/components/ui/switch'
 
 const props = defineProps({
   state: { type: Object, required: true },
@@ -279,14 +280,13 @@ watch(
         </div>
       </div>
 
-      <label class="field full rowLine">
+      <div class="field full rowLine">
         <span>Подсказки</span>
-        <input
-            type="checkbox"
+        <Switch
             :checked="state.ui?.showHelp ?? true"
-            @change="updateUi('showHelp', $event.target.checked)"
+            @update:checked="updateUi('showHelp', $event)"
         />
-      </label>
+      </div>
     </div>
 
     <div v-if="errors.length" class="errors">
@@ -296,157 +296,3 @@ watch(
     </div>
   </section>
 </template>
-
-<style scoped>
-.block {
-  padding: 12px;
-  border: 1px solid #2b2b2b;
-  border-radius: 10px;
-  background: #121212;
-  display: grid;
-  gap: 12px;
-}
-
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.grid {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.field {
-  display: grid;
-  gap: 4px;
-}
-
-.field span {
-  font-size: 11px;
-  color: #bdbdbd;
-}
-
-.field input[type="text"],
-.field input[type="number"],
-.field input[type="date"],
-.field input[type="datetime-local"] {
-  padding: 7px 10px;
-  border: 1px solid #2b2b2b;
-  border-radius: 8px;
-  background: #0f0f0f;
-  color: #f3f3f3;
-  font-size: 13px;
-}
-
-.field.full {
-  grid-column: 1 / -1;
-}
-
-.legend {
-  font-size: 11px;
-  color: #bdbdbd;
-}
-
-.checks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid #2b2b2b;
-  border-radius: 8px;
-  background: #0f0f0f;
-}
-
-.check {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #e6e6e6;
-  font-size: 13px;
-}
-
-.check input {
-  width: 16px;
-  height: 16px;
-}
-
-.summary {
-  padding: 8px 10px;
-  border: 1px solid #2b2b2b;
-  border-radius: 8px;
-  background: #0f0f0f;
-  display: grid;
-  gap: 4px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.total {
-  margin-top: 2px;
-  padding-top: 6px;
-  border-top: 1px solid #2b2b2b;
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-.rowLine {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 10px;
-  border: 1px solid #2b2b2b;
-  border-radius: 8px;
-  background: #0f0f0f;
-}
-
-.errors {
-  padding: 8px 10px;
-  border: 1px solid #5a2b2b;
-  border-radius: 8px;
-  background: #2a1414;
-  display: grid;
-  gap: 6px;
-}
-
-.error {
-  color: #ffd1d1;
-  font-size: 12px;
-}
-
-.btn {
-  border: 1px solid #2b2b2b;
-  border-radius: 8px;
-  padding: 8px 12px;
-  background: #1b1b1b;
-  color: #f3f3f3;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.btn.primary {
-  border-color: #2f4fbf;
-  background: #1a2b66;
-}
-
-@media (max-width: 980px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

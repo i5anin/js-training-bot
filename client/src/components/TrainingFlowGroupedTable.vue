@@ -1,9 +1,16 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/ui/collapsible'
 
 const props = defineProps({
   entries: { type: Array, required: true },
 })
+
+const isOpen = ref(false)
 
 const formatIso = (iso) => {
   if (!iso) return '-'
@@ -139,122 +146,16 @@ const grouped = computed(() => {
       </table>
     </div>
 
-    <details class="jsonBlock">
-      <summary class="jsonTitle">JSON (группы)</summary>
-      <pre class="json">{{ JSON.stringify(grouped, null, 2) }}</pre>
-    </details>
+    <Collapsible v-model:open="isOpen" class="jsonBlock">
+      <CollapsibleTrigger as-child>
+        <button class="jsonTitle" type="button">
+          JSON (группы)
+        </button>
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
+        <pre class="json">{{ JSON.stringify(grouped, null, 2) }}</pre>
+      </CollapsibleContent>
+    </Collapsible>
   </section>
 </template>
-
-<style scoped>
-.block {
-  padding: 16px;
-  border: 1px solid #2b2b2b;
-  border-radius: 12px;
-  background: #121212;
-  display: grid;
-  gap: 16px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.badge {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  padding: 6px 10px;
-  border: 1px solid #2b2b2b;
-  border-radius: 999px;
-  color: #cfcfcf;
-}
-
-.tableWrap {
-  overflow: auto;
-  border: 1px solid #2b2b2b;
-  border-radius: 10px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1100px;
-}
-
-th, td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #2b2b2b;
-  text-align: left;
-  white-space: nowrap;
-  vertical-align: top;
-}
-
-thead th {
-  position: sticky;
-  top: 0;
-  background: #161616;
-  z-index: 1;
-}
-
-.num {
-  text-align: right;
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  color: #d7d7d7;
-}
-
-.sets {
-  white-space: normal;
-}
-
-.setsText {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: #e6e6e6;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.note {
-  max-width: 360px;
-  white-space: normal;
-  overflow: hidden;
-}
-
-.empty {
-  text-align: center;
-  color: #9a9a9a;
-  padding: 16px;
-}
-
-.jsonBlock {
-  border: 1px solid #2b2b2b;
-  border-radius: 10px;
-  background: #0f0f0f;
-  overflow: hidden;
-}
-
-.jsonTitle {
-  cursor: pointer;
-  padding: 10px 12px;
-  color: #cfcfcf;
-  border-bottom: 1px solid #2b2b2b;
-  user-select: none;
-}
-
-.json {
-  margin: 0;
-  padding: 12px;
-  color: #dcdcdc;
-  overflow: auto;
-}
-</style>
