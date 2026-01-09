@@ -4,7 +4,7 @@
  */
 
 export const IdGenerator = Object.freeze({
-    nextId() {
-        return crypto.randomUUID()
-    }
+  nextId() {
+    return crypto.randomUUID()
+  },
 })

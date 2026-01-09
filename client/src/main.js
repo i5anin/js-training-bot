@@ -2,14 +2,6 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import './style.css'
+import './shared/dayjs'
 
-
-createApp(App)
-    .use( {
-        theme: {
-            options: {
-                darkModeSelector: '.dark',
-            },
-        },
-    })
-    .mount('#app')
+createApp(App).mount('#app')
