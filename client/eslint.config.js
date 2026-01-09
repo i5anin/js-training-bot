@@ -1,16 +1,61 @@
 import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import pluginVue from 'eslint-plugin-vue'
-import pluginUnusedImports from 'eslint-plugin-unused-imports'
-import pluginPrettier from 'eslint-plugin-prettier'
+import vue from 'eslint-plugin-vue'
 import vueParser from 'vue-eslint-parser'
-import pluginBoundaries from 'eslint-plugin-boundaries'
+import tseslint from '@typescript-eslint/eslint-plugin'
+import tsParser from '@typescript-eslint/parser'
+import importPlugin from 'eslint-plugin-import'
+import unusedImports from 'eslint-plugin-unused-imports'
+import prettier from 'eslint-plugin-prettier'
+
+const aliasMap = [
+  ['@', './src'],
+  ['~', './src'],
+  ['@api', './src/shared/api'],
+  ['@store', './src/shared/store'],
+  ['@assets', './src/shared/assets'],
+]
+
+const importResolver = {
+  'import/resolver': {
+    alias: {
+      map: aliasMap,
+      extensions: ['.js', '.ts', '.vue', '.json'],
+    },
+    node: {
+      extensions: ['.js', '.ts', '.vue', '.json'],
+    },
+  },
+}
+
+const prettierRules = {
+  printWidth: 80,
+  tabWidth: 2,
+  singleQuote: true,
+  semi: false,
+  trailingComma: 'es5',
+  endOfLine: 'lf',
+  htmlWhitespaceSensitivity: 'strict',
+  vueIndentScriptAndStyle: true,
+  bracketSameLine: false,
+  singleAttributePerLine: false,
+}
 
 export default [
   {
-    files: ['src/**/*.{js,ts,vue}'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'src/components/ui/**',
+    ],
+  },
+
+  /**
+   * JS / TS files
+   */
+  {
+    files: ['src/**/*.{js,ts}'],
     languageOptions: {
-      parser: tseslint.parser,
+      parser: tsParser,
       parserOptions: {
         ecmaVersion: 2023,
         sourceType: 'module',
@@ -18,112 +63,93 @@ export default [
       globals: globals.browser,
     },
     settings: {
-      'boundaries/elements': [
-        { type: 'app', pattern: 'src/app/**', mode: 'file' },
-        { type: 'pages', pattern: 'src/pages/**' },
-        { type: 'widgets', pattern: 'src/widgets/**', allow: ['features', 'entities', 'shared'] },
-        { type: 'features', pattern: 'src/features/**', allow: ['entities', 'shared'] },
-        { type: 'entities', pattern: 'src/entities/**', allow: ['shared'] },
-        { type: 'shared', pattern: 'src/shared/**' },
-      ],
+      ...importResolver,
     },
     plugins: {
-      vue: pluginVue,
-      '@typescript-eslint': tseslint.plugin,
-      'unused-imports': pluginUnusedImports,
-      prettier: pluginPrettier,
-      boundaries: pluginBoundaries,
+      vue,
+      import: importPlugin,
+      '@typescript-eslint': tseslint,
+      'unused-imports': unusedImports,
+      prettier,
     },
     rules: {
-      // 'vue/component-api-style': ['error', ['script-setup']],
-      'vue/no-setup-props-destructure': 'error',
-      'vue/script-setup-uses-vars': 'error',
-
-      'boundaries/no-unknown-files': 'error',
-      'boundaries/element-types': [
-        'error',
-        {
-          default: 'disallow',
-          message: '${file.type} is not allowed to import ${dependency.type}',
-          rules: [
-            {
-              from: ['app', 'pages', 'widgets', 'features', 'entities', 'shared'],
-              allow: ['app', 'pages', 'widgets', 'features', 'entities', 'shared'],
-            },
-          ],
-        },
-      ],
-
       'no-debugger': 'error',
+      'no-duplicate-imports': 'error',
+      'no-dupe-args': 'error',
+      'no-dupe-else-if': 'error',
+
+      'no-redeclare': 'off',
+      '@typescript-eslint/no-redeclare': ['error', {ignoreDeclarationMerge: true}],
+
+      'no-shadow': 'off',
+      '@typescript-eslint/no-shadow': 'error',
+
+      'import/no-unresolved': 'error',
+      'import/extensions': ['error', 'ignorePackages', {js: 'never', ts: 'never', vue: 'always'}],
+
       'unused-imports/no-unused-imports': 'warn',
       'unused-imports/no-unused-vars': [
         'warn',
-        { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
-      ],
-
-      'no-dupe-args': 'error',
-      'no-dupe-else-if': 'error',
-      'no-duplicate-imports': 'error',
-
-      'no-redeclare': 'off',
-      '@typescript-eslint/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
-
-      'no-shadow': 'off',
-      '@typescript-eslint/no-shadow': ['error'],
-
-      'prettier/prettier': [
-        'error',
         {
-          printWidth: 80,
-          tabWidth: 2,
-          singleQuote: true,
-          semi: false,
-          trailingComma: 'es5',
-          endOfLine: 'lf',
-          htmlWhitespaceSensitivity: 'strict',
-          vueIndentScriptAndStyle: true,
-          bracketSameLine: false,
-          singleAttributePerLine: false,
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
         },
       ],
+
+      'prettier/prettier': ['error', prettierRules],
     },
   },
 
+  /**
+   * Vue SFC
+   */
   {
-    files: ['**/*.vue'],
+    files: ['src/**/*.vue'],
     languageOptions: {
       parser: vueParser,
       parserOptions: {
-        parser: tseslint.parser,
+        parser: tsParser,
         ecmaVersion: 2023,
         sourceType: 'module',
+        extraFileExtensions: ['.vue'],
       },
+      globals: globals.browser,
     },
-    plugins: { vue: pluginVue },
+    settings: {
+      ...importResolver,
+    },
+    plugins: {
+      vue,
+      import: importPlugin,
+      '@typescript-eslint': tseslint,
+      'unused-imports': unusedImports,
+      prettier,
+    },
     rules: {
-      ...pluginVue.configs['flat/recommended'].rules,
+      ...vue.configs['flat/recommended'].rules,
 
-      'vue/no-dupe-keys': 'error',
-      'vue/no-duplicate-attributes': 'error',
+      'import/no-unresolved': 'error',
+      'import/extensions': [
+        'error',
+        'ignorePackages',
+        {js: 'never', ts: 'never', vue: 'always'},
+      ],
 
-      'vue/attribute-hyphenation': ['warn', 'always'],
-      'vue/v-on-event-hyphenation': ['warn', 'always'],
-      'vue/attributes-order': 'warn',
-      'vue/html-indent': ['warn', 2, { attribute: 1, baseIndent: 1, alignAttributesVertically: true }],
-      'vue/max-len': [
+      'unused-imports/no-unused-imports': 'warn',
+      'unused-imports/no-unused-vars': [
         'warn',
         {
-          code: 80,
-          template: 80,
-          tabWidth: 2,
-          ignoreUrls: true,
-          ignoreStrings: true,
-          ignoreTemplateLiterals: true,
-          ignoreRegExpLiterals: true,
-          ignoreComments: true,
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
         },
       ],
-      'vue/multi-word-component-names': 'off',
+
+      'prettier/prettier': ['error', prettierRules],
     },
+
   },
 ]

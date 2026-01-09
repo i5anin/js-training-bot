@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "checkJs": true,
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@/*": ["src/*"],
+      "~/*": ["src/*"],
+      "@api/*": ["src/shared/api/*"],
+      "@store/*": ["src/shared/store/*"],
+      "@assets/*": ["src/shared/assets/*"]
+    }
+  },
+  "include": ["src/**/*.js", "src/**/*.vue", "vite.config.js"],
+  "exclude": ["node_modules", "dist"]
+}
