@@ -1,0 +1,12 @@
+{
+  "entry": [
+    "src/main.js"
+  ],
+  "project": [
+    "src/**/*.{ts,js,vue}"
+  ],
+  "ignore": [
+    "src/components/ui/**",
+    "src/shared/ui/**"
+  ]
+}

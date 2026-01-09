@@ -1,32 +1,30 @@
-const BASE_URL = 'http://localhost:3005'
-
-const request = async (path, options = {}) => {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`API ${res.status}: ${text}`)
-  }
-
-  return res.status === 204 ? null : res.json()
-}
+import { axiosInstance } from '@/shared/api/axiosInstance'
+import { handleResponse, handleApiError } from '@/shared/api/httpHandlers'
 
 export const TrainingApi = Object.freeze({
-  list() {
-    return request('/trainings?_sort=createdAtIso&_order=desc')
+  list: async () => {
+    return axiosInstance
+      .get('/trainings', {
+        params: {
+          _sort: 'createdAtIso',
+          _order: 'desc',
+        },
+      })
+      .then(handleResponse)
+      .catch(handleApiError)
   },
 
-  add(entry) {
-    return request('/trainings', {
-      method: 'POST',
-      body: JSON.stringify(entry),
-    })
+  add: async (entry) => {
+    return axiosInstance
+      .post('/trainings', entry)
+      .then(handleResponse)
+      .catch(handleApiError)
   },
 
-  remove(id) {
-    return request(`/trainings/${id}`, { method: 'DELETE' })
+  remove: async (id) => {
+    return axiosInstance
+      .delete(`/trainings/${id}`)
+      .then(handleResponse)
+      .catch(handleApiError)
   },
 })
