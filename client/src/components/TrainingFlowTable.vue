@@ -1,20 +1,7 @@
 <script setup>
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@/components/ui/alert-dialog'
-
 defineProps({
-  entries: { type: Array, required: true },
-})
-
+  entries: {type: Array, required: true}
+});
 const emit = defineEmits(['remove'])
 
 const remove = (id) => emit('remove', id)
@@ -31,7 +18,7 @@ const formatIso = (iso) => {
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit',
+    minute: '2-digit'
   })
 }
 
@@ -67,6 +54,7 @@ const calcTotal = (row) => {
         </thead>
 
         <tbody>
+
         <tr v-for="row in entries" :key="row.id">
           <td class="num mono">{{ row.trainingNo ?? '-' }}</td>
           <td class="mono">{{ formatIso(row.trainingAtIso) }}</td>
@@ -79,35 +67,9 @@ const calcTotal = (row) => {
           <td class="note">{{ row.note || '-' }}</td>
 
           <td class="actions">
-            <AlertDialog>
-              <AlertDialogTrigger as-child>
-                <button class="btn danger" type="button">
-                  Удалить
-                </button>
-              </AlertDialogTrigger>
-
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Удалить запись?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Это действие необратимо. Запись будет удалена навсегда.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-
-                <AlertDialogFooter>
-                  <AlertDialogCancel type="button">
-                    Отмена
-                  </AlertDialogCancel>
-
-                  <AlertDialogAction
-                      type="button"
-                      @click="remove(row.id)"
-                  >
-                    Удалить
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <button class="btn danger" type="button" @click="remove(row.id)">
+              Удалить
+            </button>
           </td>
         </tr>
 
@@ -124,3 +86,5 @@ const calcTotal = (row) => {
     </details>
   </section>
 </template>
+
+

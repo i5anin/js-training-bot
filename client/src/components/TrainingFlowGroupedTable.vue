@@ -1,16 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue'
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from '@/components/ui/collapsible'
+import { computed } from 'vue'
 
 const props = defineProps({
   entries: { type: Array, required: true },
 })
-
-const isOpen = ref(false)
 
 const formatIso = (iso) => {
   if (!iso) return '-'
@@ -146,16 +139,10 @@ const grouped = computed(() => {
       </table>
     </div>
 
-    <Collapsible v-model:open="isOpen" class="jsonBlock">
-      <CollapsibleTrigger as-child>
-        <button class="jsonTitle" type="button">
-          JSON (группы)
-        </button>
-      </CollapsibleTrigger>
-
-      <CollapsibleContent>
-        <pre class="json">{{ JSON.stringify(grouped, null, 2) }}</pre>
-      </CollapsibleContent>
-    </Collapsible>
+    <details class="jsonBlock">
+      <summary class="jsonTitle">JSON (группы)</summary>
+      <pre class="json">{{ JSON.stringify(grouped, null, 2) }}</pre>
+    </details>
   </section>
 </template>
+
