@@ -31,4 +31,3 @@ const formatDateKey = (iso) => {
 }
 
 export { dayjs, toMoscowDayjs, formatIso, formatDateKey }
-

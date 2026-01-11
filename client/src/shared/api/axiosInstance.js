@@ -10,10 +10,10 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => config,
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 )
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 )
