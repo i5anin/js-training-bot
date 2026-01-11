@@ -83,8 +83,8 @@
   })
 
   const MSK_TZ = 'Europe/Moscow'
-  const ISO_WITH_OFFSET = 'YYYY-MM-DDTHH:mm:ssZ'
-  const INPUT_FORMAT = 'YYYY-MM-DDTHH:mm'
+  const ISO_WITH_OFFSET = 'YYYY-MM-DD[T]HH:mm:ssZ'
+  const INPUT_FORMAT = 'YYYY-MM-DD[T]HH:mm'
 
   const nowMskIso = () => dayjs().tz(MSK_TZ).format(ISO_WITH_OFFSET)
 
