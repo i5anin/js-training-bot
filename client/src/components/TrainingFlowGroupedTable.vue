@@ -27,7 +27,8 @@
     const wn = String(row.workoutName || '').trim()
     return `${no}__${day}__${mg}__${wn}`
   }
-  computed(() => {
+
+  const groups = computed(() => {
     const map = new Map()
 
     for (const row of props.entries) {
@@ -71,3 +72,35 @@
       })
   })
 </script>
+
+<template>
+  <div v-if="groups.length === 0">Нет записей</div>
+
+  <table v-else>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Дата</th>
+        <th>Группа</th>
+        <th>Тренировка</th>
+        <th>Сеты</th>
+        <th>Всего сетов</th>
+        <th>Заметки</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr v-for="g in groups" :key="g.key">
+        <td>{{ g.trainingNo ?? '-' }}</td>
+        <td>{{ g.dateText }}</td>
+        <td>{{ g.muscleGroup || '-' }}</td>
+        <td>{{ g.workoutName || '-' }}</td>
+        <td>
+          <pre>{{ g.setsText }}</pre>
+        </td>
+        <td>{{ g.totalSets }}</td>
+        <td>{{ g.notesText }}</td>
+      </tr>
+    </tbody>
+  </table>
+</template>
