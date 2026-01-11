@@ -1,7 +1,7 @@
 {
-  "name": "my-vue-app",
+  "name": "trainings",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "server": "json-server --watch src/db.json --port 3005",
