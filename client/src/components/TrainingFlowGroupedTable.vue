@@ -1,75 +1,84 @@
 <script setup>
   import { computed } from 'vue'
+  import { groupBy, pipe, sortBy, unique } from 'remeda'
   import { formatIso, formatDateKey, toMoscowDayjs } from '@/shared/dayjs'
+
+  /**
+   * @typedef {Object} TrainingEntry
+   * @property {number} trainingNo
+   * @property {string} trainingAtIso
+   * @property {string} muscleGroup
+   * @property {string} workoutName
+   * @property {string} note
+   * @property {number|string} weight
+   * @property {number|string} reps
+   */
+
+  /**
+   * @typedef {Object} TrainingGroup
+   * @property {string} key
+   * @property {number|null} trainingNo
+   * @property {string|null} trainingAtIso
+   * @property {string} muscleGroup
+   * @property {string} workoutName
+   * @property {TrainingEntry[]} rows
+   * @property {string} dateText
+   * @property {string} notesText
+   * @property {string} setsText
+   * @property {number} totalSets
+   */
+
+  /** @typedef {{ entries: TrainingEntry[] }} Props */
 
   const props = defineProps({
     entries: { type: Array, required: true },
   })
 
-  const toUniqueNotes = (rows) => {
-    const set = new Set(
-      rows.map((x) => String(x.note || '').trim()).filter(Boolean)
-    )
-    return Array.from(set)
-  }
+  const toTrimmed = (v) => String(v ?? '').trim()
+  const toNum = (v) => Number(v ?? 0)
 
-  const toSetsText = (rows) =>
-    rows
-      .slice()
-      .sort((a, b) => Number(a.weight || 0) - Number(b.weight || 0))
-      .map((x) => `${Number(x.weight || 0)}x${Number(x.reps || 0)}`)
-      .join('\n')
+  const keyOf = (row) =>
+    `${row.trainingNo ?? ''}__${formatDateKey(row.trainingAtIso)}__${toTrimmed(row.muscleGroup)}__${toTrimmed(row.workoutName)}`
 
-  const groupKeyOf = (row) => {
-    const no = row.trainingNo ?? ''
-    const day = formatDateKey(row.trainingAtIso)
-    const mg = String(row.muscleGroup || '').trim()
-    const wn = String(row.workoutName || '').trim()
-    return `${no}__${day}__${mg}__${wn}`
-  }
-
+  /** @type {import('vue').ComputedRef<TrainingGroup[]>} */
   const groups = computed(() => {
-    const map = new Map()
+    /** @type {Record<string, TrainingEntry[]>} */
+    const byKey = groupBy(props.entries, keyOf)
 
-    for (const row of props.entries) {
-      const key = groupKeyOf(row)
-      const current = map.get(key)
+    /** @type {TrainingGroup[]} */
+    const list = Object.entries(byKey).map(([key, rows]) => {
+      /** @type {TrainingEntry | undefined} */
 
-      if (!current) {
-        map.set(key, {
-          key,
-          trainingNo: row.trainingNo ?? null,
-          trainingAtIso: row.trainingAtIso ?? null,
-          muscleGroup: row.muscleGroup ?? '',
-          workoutName: row.workoutName ?? '',
-          rows: [row],
-        })
-        continue
+      const notesText =
+        unique(rows.map((x) => toTrimmed(x.note)).filter(Boolean)).join(', ') ||
+        '-'
+
+      const setsText = pipe(
+        rows,
+        (r) => [...r],
+        (r) => sortBy(r, [(x) => toNum(x.weight), 'asc']),
+        (r) => r.map((x) => `${toNum(x.weight)}x${toNum(x.reps)}`).join('\n')
+      )
+
+      return {
+        key,
+        trainingNo: first?.trainingNo ?? null,
+        trainingAtIso: first?.trainingAtIso ?? null,
+        muscleGroup: first?.muscleGroup ?? '',
+        workoutName: first?.workoutName ?? '',
+        rows,
+        dateText: formatIso(first?.trainingAtIso),
+        notesText,
+        setsText,
+        totalSets: rows.length,
       }
+    })
 
-      current.rows.push(row)
-    }
-
-    return Array.from(map.values())
-      .map((g) => {
-        const notes = toUniqueNotes(g.rows)
-        return {
-          ...g,
-          dateText: formatIso(g.trainingAtIso),
-          notesText: notes.length ? notes.join(', ') : '-',
-          setsText: toSetsText(g.rows),
-          totalSets: g.rows.length,
-        }
-      })
-      .sort((a, b) => {
-        const na = Number(a.trainingNo || 0)
-        const nb = Number(b.trainingNo || 0)
-        if (na !== nb) return nb - na
-
-        const da = toMoscowDayjs(a.trainingAtIso)?.valueOf() ?? 0
-        const db = toMoscowDayjs(b.trainingAtIso)?.valueOf() ?? 0
-        return db - da
-      })
+    return sortBy(
+      list,
+      [(g) => toNum(g.trainingNo), 'desc'],
+      [(g) => toMoscowDayjs(g.trainingAtIso)?.valueOf() ?? 0, 'desc']
+    )
   })
 </script>
 
